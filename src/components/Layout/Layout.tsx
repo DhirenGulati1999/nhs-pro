@@ -1,9 +1,9 @@
-import Navigation from "src/components/Navigation";
+import Header from "./Header";
 
 function Layout({ children }: any) {
   return (
     <div>
-      <Navigation />
+      <Header />
       <div>{children}</div>
     </div>
   );

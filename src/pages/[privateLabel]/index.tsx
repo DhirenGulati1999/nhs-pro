@@ -1,20 +1,10 @@
 import { getParner } from "@/api/parner";
 import { withCSR } from "@/HOC/with-CSR";
 import { usePartner } from "@/hooks/api/partner";
-import { dehydrate, QueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { dehydrate, QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
-
-interface Partner {
-  partnerId: number;
-  partnerName: string;
-  privateLabelSite: string;
-  statusId: number;
-}
 
 export default function Home() {
-  const router = useRouter();
   const {
     query: { privateLabel },
   } = useRouter();
@@ -23,7 +13,7 @@ export default function Home() {
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
-  return <div>{data.partnerName}</div>;
+  return <div>{data?.PartnerName}</div>;
 }
 
 export const getServerSideProps = withCSR(async (ctx: any) => {
@@ -33,8 +23,9 @@ export const getServerSideProps = withCSR(async (ctx: any) => {
   const { privateLabel } = ctx.params;
   console.log("url path" + ctx);
 
-  const queryClient = new QueryClient();
-
+   const queryClient = new QueryClient();
+ // Access the client
+ //const queryClient = useQueryClient(ctx)
   let isError = false;
 
   try {
