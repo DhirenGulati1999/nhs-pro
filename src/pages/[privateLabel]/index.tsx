@@ -1,47 +1,30 @@
-import { getParner } from "@/api/parner";
-import { withCSR } from "@/HOC/with-CSR";
-import { usePartner } from "@/hooks/api/partner";
-import { dehydrate, QueryClient, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/router";
+import { getPartner } from "@/api/parner";
 
-export default function Home() {
-  const {
-    query: { privateLabel },
-  } = useRouter();
-
-  const { data, isLoading } = usePartner(privateLabel);
-  if (isLoading) {
-    return <h1>Loading...</h1>;
-  }
-  return <div>{data?.PartnerName}</div>;
+export default function Home(props : any) {
+  console.log("partner:", props.data)
+  return <div>{props.data?.PartnerName} Shradha</div>;
 }
 
-export const getServerSideProps = withCSR(async (ctx: any) => {
+export const getServerSideProps = async (context : any) => {
   debugger;
   console.log("getServerSideProps");
 
-  const { privateLabel } = ctx.params;
-  console.log("url path" + ctx);
+  const { privateLabel } = context.params;
+  console.log("url path" + context);
 
-   const queryClient = new QueryClient();
- // Access the client
- //const queryClient = useQueryClient(ctx)
   let isError = false;
-
+  let data = null;
   try {
-    await queryClient.fetchQuery(["privateSiteLabel", privateLabel], () =>
-      getParner(privateLabel)
-    );
+    data = await getPartner(privateLabel);
   } catch (error: any) {
     isError = true;
-    ctx.res.statusCode = error.response.status;
+    context.res.statusCode = error.response.status;
   }
 
   return {
     props: {
-      //also passing down isError state to show a custom error component.
       isError,
-      dehydratedState: dehydrate(queryClient),
+      data: data,
     },
   };
-});
+}

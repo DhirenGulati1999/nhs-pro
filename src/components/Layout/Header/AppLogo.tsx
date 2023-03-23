@@ -1,14 +1,8 @@
-import { usePartner } from "@/hooks/api/partner";
 import Image from "next/image";
 import { useRouter } from "next/router";
-
+import {Partner} from "../../../interfaces/partner"
 function AppLogo() {
-  const {
-    query: { privateLabel },
-  } = useRouter();
-
-  console.log("my private label", privateLabel);
-  const {data, isLoading} = usePartner(privateLabel);
+   const {data, isLoading} : {data: Partner, isLoading : boolean} = {data: {}, isLoading: true};
   console.log(data, isLoading);
   return <div>
      <Image
