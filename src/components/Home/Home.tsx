@@ -1,7 +1,10 @@
+import SearchBox from "../SearchBox";
+
+/* eslint-disable react/no-unescaped-entities */
 export const Home = () => {
   return (
     <>
-      <div>Search Bar</div>
+      <SearchBox />
       <div>Banner</div>
       <div>Learn how to Sell and Show New Homes</div>
       <div>TrustBuilder®: Honest Reviews from Real Homebuyers</div>
