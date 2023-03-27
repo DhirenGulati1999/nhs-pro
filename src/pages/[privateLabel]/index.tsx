@@ -1,14 +1,17 @@
 import { getPartner } from "@/api/parner";
+import { Home } from "@/components/Home/Home";
+import { Partner } from "@/interfaces/partner";
+import { useAppDispatch } from "@/state/hooks";
+import { setPartner } from "@/state/slices/partnerSlice";
 
-export default function Home(props : any) {
-  console.log("partner:", props.data)
-  return <div>{props.data?.PartnerName} Shradha</div>;
+export default function HomePage({ partner }: { partner: Partner }) {
+  console.log("partner:", partner);
+  const dipatch =  useAppDispatch();
+  dipatch(setPartner(partner));
+  return <><Home/></>;
 }
 
-export const getServerSideProps = async (context : any) => {
-  debugger;
-  console.log("getServerSideProps");
-
+export const getServerSideProps = async (context: any) => {
   const { privateLabel } = context.params;
   console.log("url path" + context);
 
@@ -24,7 +27,7 @@ export const getServerSideProps = async (context : any) => {
   return {
     props: {
       isError,
-      data: data,
+      partner: data,
     },
   };
-}
+};
