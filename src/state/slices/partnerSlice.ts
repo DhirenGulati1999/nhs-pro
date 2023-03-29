@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Partner } from "@/interfaces/partner";
+import { Partner } from "@/interfaces/Partner";
 
 interface InitialState {
     Partner : Partner,
@@ -14,7 +14,7 @@ const initialState : InitialState = {
 };
 
 const partnerSlice = createSlice({
-  name: "partner",
+  name: "Partner",
   initialState,
   reducers: {
     setPartner: (state, { payload } : PayloadAction<Partner>) => {

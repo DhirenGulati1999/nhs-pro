@@ -1,13 +1,16 @@
 import { getPartner } from "@/api/parner";
 import { Home } from "@/components/Home/Home";
-import { Partner } from "@/interfaces/partner";
+import { Partner } from "@/interfaces/Partner";
 import { useAppDispatch } from "@/state/hooks";
 import { setPartner } from "@/state/slices/partnerSlice";
+import { useEffect } from "react";
 
 export default function HomePage({ partner }: { partner: Partner }) {
-  console.log("partner:", partner);
   const dipatch =  useAppDispatch();
-  dipatch(setPartner(partner));
+  useEffect(() => {
+    dipatch(setPartner(partner));
+  }, [])
+  
   return <><Home/></>;
 }
 

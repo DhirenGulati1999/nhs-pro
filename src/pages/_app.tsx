@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import { config } from "src/lib/react-query-config";
 import Layout from "src/components/Layout";
 
 import type { AppProps } from "next/app";

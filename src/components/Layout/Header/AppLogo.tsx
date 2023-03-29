@@ -4,6 +4,7 @@ import Image from "next/image";
 
 function AppLogo() {
   const { Partner } = useAppSelector((state: RootState) => state.partner);
+  console.log("Partner Data:", Partner);
   if(!Partner.PartnerId) return <></>
 
   return (

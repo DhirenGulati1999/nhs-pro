@@ -1,16 +1,23 @@
 import { getPartner } from "@/api/parner";
-import { Partner } from "@/interfaces/partner";
+import { Partner } from "@/interfaces/Partner";
 import { useAppDispatch } from "@/state/hooks";
 import { setPartner } from "@/state/slices/partnerSlice";
 import { Home } from "@/components/Home/Home";
+import { useEffect } from "react";
 
 export default function HomePage({ partner }: { partner: Partner }) {
   console.log("partner:", partner);
-  const dipatch =  useAppDispatch();
-  dipatch(setPartner(partner));
-  return <><Home/></>;
+  const dipatch = useAppDispatch();
+  useEffect(() => {
+    dipatch(setPartner(partner));
+  }, []);
+  return (
+    <>
+      {partner.PartnerName}
+      <Home />
+    </>
+  );
 }
-
 
 export const getServerSideProps = async (context: any) => {
   let isError = false;
