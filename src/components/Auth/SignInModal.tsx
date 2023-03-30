@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {  useEffect } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -12,13 +12,15 @@ import { RootState } from "@/state/store";
 import { setIsUserLogedIn, setUser } from "@/state/slices/userSlice";
 import { BaseResponse } from "@/interfaces/Response";
 import { User } from "@/interfaces/User";
+import { redirect } from 'next/navigation';
+import { useRouter } from "next/router";
 
-export const SignIn = () => {
+export const SignInModal = ({closeSingInModal, redirectionLink}: {closeSingInModal: () => void,redirectionLink?: string}) => {
   const dispatch = useAppDispatch();
   const partnerId: number = useAppSelector(
     (state: RootState) => state.partner.Partner.PartnerId || 0
   );
-  const [open, setOpen] = React.useState<boolean>(false);
+  
   const [userName, setUserName] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [userNameValidError, setUserNameValidError] = React.useState<boolean>(false);
@@ -26,61 +28,67 @@ export const SignIn = () => {
     React.useState<boolean>(false);
   const [shouldValidate, setShouldValidate] = React.useState<boolean>(false);
   const [responseError, setResponseError] = React.useState<string>("");
-
-  const openSignInPopUp = () => {
-    setOpen(true);
-  };
+  const router = useRouter();
 
   const handleClose = () => {
-    setOpen(false);
+    setUserNameValidError(false);
+    setPasswordRequiredError(false);
+    setShouldValidate(false);
+    setResponseError("");
+    closeSingInModal();
   };
 
   const onSignIn = async () => {
     setShouldValidate(true);
-    if (!(userNameValidError && passwordRequiredError)) {
+    const isEmailValid = validateEmail(true);
+    const isPasswordValid = validatePassword(true);
+    if (isEmailValid && isPasswordValid) {
       var result: BaseResponse<User> = await getUser(userName, password, partnerId);
       if (result.StatusCode == 200) {
         dispatch(setIsUserLogedIn(true));
-        setResponseError("");
         dispatch(setUser(result.Data));
+        redirectionLink && router.push(redirectionLink);
       }else{
         setResponseError(result.Message);
       }
     }
   };
 
-  const validateEmail = () => {
-    if (shouldValidate) {
+  const validateEmail = (isValidate?: boolean) => {
+    if (shouldValidate || isValidate) {
       if (!userName || !/^\S+@\S+\.\S+$/.test(userName.trim())) {
         setUserNameValidError(true);
+        return false;
       } else {
         setUserNameValidError(false);
+        return true;
       }
     }
   };
 
-  const validatePassword = () => {
-    if (shouldValidate) {
+  const validatePassword = (isValidate?: boolean) => {
+    if (shouldValidate || isValidate) {
       if (!password) {
         setPasswordRequiredError(true);
+        return false;
       } else {
         setPasswordRequiredError(false);
+        return true;
       }
     }
   };
 
   useEffect(() => {
     validateEmail();
-  }, [userName, shouldValidate]);
+  }, [userName])
 
   useEffect(() => {
     validatePassword();
-  }, [password, shouldValidate]);
-
+  }, [password])
+  
   return (
     <>
-      <Button onClick={openSignInPopUp}>SignIn</Button>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={true} onClose={handleClose}>
         <DialogTitle>Sign In</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -95,7 +103,7 @@ export const SignIn = () => {
             type="text"
             fullWidth
             variant="standard"
-            onChange={(e) => setUserName(e.target.value)}
+            onChange={(e) =>setUserName(e.target.value)}
             required
             error={userNameValidError}
             helperText={
@@ -109,7 +117,7 @@ export const SignIn = () => {
             type="password"
             fullWidth
             variant="standard"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) =>setPassword(e.target.value)}
             required
             error={passwordRequiredError}
             helperText={

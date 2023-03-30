@@ -10,7 +10,19 @@ const nextConfig = {
         pathname: '/globalresources/**',
       },
     ],
-  }
+  },
+  async rewrites() {
+    return [
+        {
+            source: '/:privateLabel/webinars',
+            destination: '/webinars'
+        },
+        {
+          source: '/:privateLabel/savedlistings',
+          destination: '/savedlistings'
+      }
+    ];
+}
 }
 
 module.exports = nextConfig

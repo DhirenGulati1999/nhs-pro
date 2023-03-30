@@ -1,16 +1,36 @@
-import "@/styles/globals.css";
-import Layout from "src/components/Layout";
+import Layout from '@/components/Layout';
+import { getGlobalPageProps } from '@/lib/serverSideProps';
+import { setPartner } from '@/state/slices/partnerSlice';
+import { store } from '@/state/store';
+import App, { AppContext, AppProps } from "next/app";
+import { useEffect } from 'react';
+import { Provider, useStore } from 'react-redux';
 
-import type { AppProps } from "next/app";
-import { Provider } from "react-redux";
-import { store } from "../state/store";
+type TProps = AppProps & {
+  props: {};
+};
 
-export default function App({ Component, pageProps }: AppProps) {
+export function MyCustomApp({ Component, pageProps }: TProps) {
+  useEffect(() => {
+  const dispatch = store.dispatch;
+  dispatch(setPartner(pageProps.partner));
+  }, [])
+  
   return (
-    <Provider store={store}>
+    <>
+      <Provider store={store}>
       <Layout>
         <Component {...pageProps} />
       </Layout>
     </Provider>
+    </>
   );
 }
+
+MyCustomApp.getInitialProps = async (context: AppContext) => {
+  const props = await getGlobalPageProps(context);
+  return { pageProps: props };
+};
+
+export default MyCustomApp;
+
