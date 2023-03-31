@@ -1,0 +1,27 @@
+.main-div {
+  color: #fff;
+  font-size: larger;
+}
+#homesearch {
+  background-size: cover;
+  background-position: center;
+  border-top: 1px solid #e5ecf2;
+  background-repeat: no-repeat;
+  background-color: #718088;
+  position: relative;
+  height: 700px;
+  margin: 10, 0, 10, 20;
+}
+
+#home-search .pro_ResetSearchBar {
+  right: 13%;
+}
+
+#home-search #HomeSearchBtn {
+  right: 3%;
+}
+/*SEARCH SECTION*/
+
+.default-homepage-search-selected {
+  background-image: "url(../images/homepage_search.jpg)" !important;
+}
