@@ -1,8 +1,8 @@
 import { getPartner } from "@/api/parner";
 
 export const getGlobalPageProps = async (params: any) => {
-    console.log("params....",params);
-  const privateLabel = params?.privateLabel ?? "";
+  const privateLabel = params?.router?.query?.privateLabel ?? "";
+  // const privateLabel = params?.privateLabel ?? "";
   let isError = false;
   let data = null;
   try {
@@ -13,6 +13,6 @@ export const getGlobalPageProps = async (params: any) => {
 
   return {
     isError,
-    partner: data,
+    Partner: data,
   };
 };

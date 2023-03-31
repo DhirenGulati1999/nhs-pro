@@ -24,14 +24,15 @@ const partnerSlice = createSlice({
     getPartner: (state) => state,
   },
   // Special reducer for hydrating the state
-  extraReducers: {
-    [HYDRATE]: (state, action) => {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(HYDRATE, (state, action: any) => {
+        return {
+          ...state,
+          ...action.payload.partnerData,
+        };
+      });
+  }
 });
 
 export const { setPartner } = partnerSlice.actions;

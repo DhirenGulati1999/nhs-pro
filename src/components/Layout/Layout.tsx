@@ -4,7 +4,7 @@ import Header from "./Header";
 import Error from "../Error/Error";
 
 function Layout({ children }: any) {
-  const { Partner } = useAppSelector((state: RootState) => state.partner);
+  const { Partner } = useAppSelector((state: RootState) => state.partnerData);
   console.log("Partner---------", Partner);
   return (
     <div>

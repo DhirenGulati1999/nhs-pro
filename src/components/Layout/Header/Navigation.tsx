@@ -16,7 +16,7 @@ function Navigation() {
   };
 
   const { IsUserLogedIn, User } = useAppSelector(
-    (state: RootState) => state.user
+    (state: RootState) => state.userData
   );
 
   return (

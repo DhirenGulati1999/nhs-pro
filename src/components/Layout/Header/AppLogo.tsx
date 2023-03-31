@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 function AppLogo() {
-  const { Partner } = useAppSelector((state: RootState) => state.partner);
-  if(!Partner.PartnerId) return <></>
+  const { Partner } = useAppSelector((state: RootState) => state.partnerData);
+  if(!Partner?.PartnerId) return <></>
 
   return (
     <div suppressHydrationWarning>

@@ -13,8 +13,8 @@ import { createWrapper } from "next-redux-wrapper";
 const makeStore = () =>
   configureStore({
     reducer: {
-      partner: partnerSlice,
-      user: userSlice,
+      partnerData: partnerSlice,
+      userData: userSlice,
     },
     devTools: true,
   });

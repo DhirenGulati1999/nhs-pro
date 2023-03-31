@@ -11,7 +11,7 @@ export const ProtectedProLink = ({
   url: string;
   urlText: string;
 }) => {
-  const { IsUserLogedIn } = useAppSelector((state: RootState) => state.user);
+  const { IsUserLogedIn } = useAppSelector((state: RootState) => state.userData);
   const [showSignInModal, setShowSignInModal] = useState<boolean>(false);
 
   if (IsUserLogedIn) {

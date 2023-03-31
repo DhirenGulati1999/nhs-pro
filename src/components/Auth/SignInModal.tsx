@@ -18,7 +18,7 @@ import { useDispatch } from "react-redux";
 export const SignInModal = ({closeSingInModal, redirectionLink}: {closeSingInModal: () => void,redirectionLink?: string}) => {
   const dispatch = useDispatch();
   const partnerId: number = useAppSelector(
-    (state: RootState) => state.partner.Partner.PartnerId || 0
+    (state: RootState) => state.partnerData.Partner.PartnerId || 0
   );
   
   const [userName, setUserName] = React.useState<string>("");

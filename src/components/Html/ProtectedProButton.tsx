@@ -10,7 +10,7 @@ export const ProtectedProButton = ({
   buttonAction: () => void;
   children: JSX.Element;
 }) => {
-  const { IsUserLogedIn } = useAppSelector((state: RootState) => state.user);
+  const { IsUserLogedIn } = useAppSelector((state: RootState) => state.userData);
   const [showSignInModal, setShowSignInModal] = useState<boolean>(false);
 
   if (IsUserLogedIn) {

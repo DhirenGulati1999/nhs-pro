@@ -4,17 +4,17 @@ import Link from "next/link";
 import React from "react";
 
 export const ProLink = ({ url, urlText }: { url: string, urlText : string }) => {
-    const partner = useAppSelector(
-        (state: RootState) => state.partner.Partner
+    const {Partner} = useAppSelector(
+        (state: RootState) => state.partnerData
       );
   return (
     <Link
     
       href={
-        partner?.PartnerId == 88
+        Partner?.PartnerId == 88
           ? url
-          : partner?.PrivateLabelSite
-          ? `/${partner?.PrivateLabelSite}${url}`
+          : Partner?.PrivateLabelSite
+          ? `/${Partner?.PrivateLabelSite}${url}`
           : url
       }
     >
