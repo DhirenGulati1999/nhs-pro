@@ -7,16 +7,16 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { getUser } from "../../api/user";
-import { useAppDispatch, useAppSelector } from "@/state/hooks";
+import { useAppSelector } from "@/state/hooks";
 import { RootState } from "@/state/store";
 import { setIsUserLogedIn, setUser } from "@/state/slices/userSlice";
 import { BaseResponse } from "@/interfaces/Response";
 import { User } from "@/interfaces/User";
-import { redirect } from 'next/navigation';
 import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
 
 export const SignInModal = ({closeSingInModal, redirectionLink}: {closeSingInModal: () => void,redirectionLink?: string}) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const partnerId: number = useAppSelector(
     (state: RootState) => state.partner.Partner.PartnerId || 0
   );

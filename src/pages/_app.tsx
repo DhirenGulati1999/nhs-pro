@@ -1,36 +1,27 @@
-import Layout from '@/components/Layout';
-import { getGlobalPageProps } from '@/lib/serverSideProps';
-import { setPartner } from '@/state/slices/partnerSlice';
-import { store } from '@/state/store';
-import App, { AppContext, AppProps } from "next/app";
-import { useEffect } from 'react';
-import { Provider, useStore } from 'react-redux';
+import Layout from "@/components/Layout";
+import { getGlobalPageProps } from "@/lib/serverSideProps";
+import { setPartner } from "@/state/slices/partnerSlice";
+import { wrapper } from "@/state/store";
+import { AppContext, AppProps } from "next/app";
+import { useEffect } from "react";
+import { Provider, useDispatch } from "react-redux";
 
 type TProps = AppProps & {
   props: {};
 };
 
 export function MyCustomApp({ Component, pageProps }: TProps) {
-  useEffect(() => {
-  const dispatch = store.dispatch;
-  dispatch(setPartner(pageProps.partner));
-  }, [])
-  
+ const { store, props } = wrapper.useWrappedStore(pageProps);
+  //console.log("store", store.getState());
   return (
     <>
       <Provider store={store}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </Provider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </Provider>
     </>
   );
 }
 
-MyCustomApp.getInitialProps = async (context: AppContext) => {
-  const props = await getGlobalPageProps(context);
-  return { pageProps: props };
-};
-
-export default MyCustomApp;
-
+export default wrapper.withRedux(MyCustomApp);

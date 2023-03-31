@@ -5,7 +5,7 @@ import Link from "next/link";
 
 function AppLogo() {
   const { Partner } = useAppSelector((state: RootState) => state.partner);
-  if(!Partner?.PartnerId) return <></>
+  if(!Partner.PartnerId) return <></>
 
   return (
     <div suppressHydrationWarning>
