@@ -3,8 +3,12 @@ const { parse } = require('url')
 const next = require('next')
 const https = require('https');
 const http = require('http');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 // const httpProxy = require('http-proxy');
 const { readFileSync } = require('fs');
+const axios = require('axios');
+const querystring = require('querystring');
+const formidable = require('formidable');
 const { createServer } =https;
 const dev = process.env.NODE_ENV !== 'production'
 const port = process.env.PORT || 80;
@@ -15,52 +19,66 @@ const httpsOptions = {
   cert: readFileSync('./server.crt'),
 };
 
-// const proxy = createProxyMiddleware({
-//     target: 'http://localhost:56887/abor/sso/startsso',
-//     changeOrigin: true,
-//     // Add any other options as needed
-//   });
+// class CustomAgent extends https.Agent {
+//     // Override the createConnection method to intercept requests
+//     createConnection(options, callback) {
+//       console.log('Intercepted request:', options);
+//       // You can modify options or perform other actions here before creating the connection
+//       return super.createConnection(options, callback);
+//     }
+//   }
+
+//   const externalApiOptions = {
+//     // other options...
+//     agent: new CustomAgent({ protocol: 'https:' }),
+//   };
+  
 
 app.prepare().then(() => {
-  createServer(httpsOptions, (req, res) => {
+  createServer(httpsOptions,async (req, res) => {
     const parsedUrl = parse(req.url, true);
     // console.log(parsedUrl.pathname)
     // if(parsedUrl)
-    if (parsedUrl.pathname === '/abor/sso/startsso') {
-        // console.log(req,"req",req.method)
-        
-        // console.log(res,"response")
 
-        // const externalApiOptions = {
-        //     hostname: 'http://sprint.newhomesourceprofessional.com/',
-        //     port: 443,
-        //     path: '/abor/sso/startsso',
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       // Add any other heade`rs as needed
-        //     },
-        //   };
+    
+    if (parsedUrl.pathname.toLowerCase().includes('/sso/startsso')) {  
+            const queryString = new URLSearchParams(parsedUrl.query).toString();
+            const externalApiOptions = {
+                hostname: 'localhost',
+                port: 56887,
+                path: parsedUrl.pathname,
+                method: 'GET',  
+                search:queryString
+            };
       
-        //   const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
-        //     let data = '';
+
+          const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
+            let data = '';
       
-        //     externalApiRes.on('data', (chunk) => {
-        //       data += chunk;
-        //     });
+            externalApiRes.on('data', (chunk) => {
+              data += chunk;
+            });
       
-        //     externalApiRes.on('end', () => {
-        //       // Process the response from the external API
-        //       console.log('Response from external API:', data);
-      
-        //       // Respond to the client
-        //       res.writeHead(200, { 'Content-Type': 'application/json' });
-        //       res.end(JSON.stringify({ message: 'POST request received for /abor/sso/startsso' }));
-        //     });
-        //   });
+            externalApiRes.on('end', () => {
+              // Process the response from the external API
+              console.log('Response from external API:', data);
+              res.writeHead(externalApiRes.statusCode, externalApiRes.headers)
+              res.end(data)
+            });
+          });
+
+          externalApiReq.on('error', (error) => {
+            console.error('Error making external API request:', error);
+          
+            // Respond to the client with an error status and message
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Internal Server Error' }));
+          });
+
+          externalApiReq.end();
         // fetch("https://sprint.newhomesourceprofessional.com/").then((data)=>console.log(data)).catch((e)=>console.log(e))
         // console.log(req,"req first")
-        forwardRequest(req, res, 'http://localhost:56887/abor/sso/startsso');
+        // forwardRequest(req, res, 'https://sprint.newhomesourceprofessional.com/abor/sso/startsso');
 
         //   proxy.web(req, res, { target: 'https://sprint.newhomesourceprofessional.com/abor/sso/startsso' });
       
@@ -73,14 +91,63 @@ app.prepare().then(() => {
         //     res.end(JSON.stringify({ error: 'Internal Server Error' }));
         //   });
       
-        //   // Send any necessary data with the external API request
-        //   const postData = JSON.stringify({ key: 'value' });
-        //   externalApiReq.write(postData);
-        //   externalApiReq.end();
-        // res.end(JSON.stringify({ message: 'POST request received for /api/postEndpoint1' }));
-    }else if(parsedUrl.pathname.includes('/abor/SSO/AssertionConsumerService')){
-        console.log(req,"req")
-        forwardRequest(req, res, 'http://localhost:56887/abor/SSO/AssertionConsumerService?binding=post');
+    }else if(parsedUrl.pathname.toLowerCase().includes('/sso/assertionconsumerservice')){
+          // Parse the form data
+          const form = new formidable.IncomingForm();
+
+          // Parse the form data
+          form.parse(req, (err, fields, files) => {
+            if (err) {
+              console.error('Error parsing form data:', err);
+    
+              // Respond with an error to the client
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Internal Server Error' }));
+              return;
+            }
+    
+            // Log or process the form fields and files
+            console.log('Form Fields:', fields);
+            console.log('Uploaded Files:', files);
+
+            const postData = querystring.stringify(fields);
+            const externalApiOptions = {
+                hostname: 'localhost',
+                port: 56887,
+                path: parsedUrl.pathname,        
+                method:'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': Buffer.byteLength(postData),
+                  },
+            };
+
+            const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
+            let data = []      
+            externalApiRes.on('data', (chunk) => {
+              data.push(chunk)
+            });
+            externalApiRes.on('end', () => {
+                // Concatenate the chunks to form the complete response data
+                const responseData = Buffer.concat(data).toString('utf8');
+                 // Process the response from the external API
+                console.log('Response from external API:', responseData);
+                res.writeHead(externalApiRes.statusCode, externalApiRes.headers) 
+                res.end(responseData)
+            });
+
+            externalApiReq.on('error', (error) => {
+                console.error('Error making external API request:', error);
+                // Respond to the client with an error status and message
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Internal Server Error' }));
+            });
+        });
+            // Write the form data to the forwarded request
+            externalApiReq.write(postData);
+            externalApiReq.end();
+          
+        });
     }
     else{
             handle(req, res, parsedUrl);
@@ -99,8 +166,9 @@ function forwardRequest(req, res, targetUrl) {
     targetOptions.method = req.method;
     targetOptions.headers = req.headers;
     targetOptions.rejectUnauthorized = false; // Disable SSL/TLS certificate verification
+    targetOptions.agent = new CustomAgent({ protocol: 'https:' });
 
-    const targetReq = http.request(targetOptions, (targetRes) => {
+    const targetReq = https.request(targetOptions, (targetRes) => {
         console.log("here inside arget req")
         if (targetRes.statusCode >= 200 && targetRes.statusCode < 300) {
             console.log('Request to external API successful',targetRes);
@@ -123,3 +191,5 @@ function forwardRequest(req, res, targetUrl) {
       res.end(JSON.stringify({ error: 'Internal Server Error' }));
     });
   }
+
+
