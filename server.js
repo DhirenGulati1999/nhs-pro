@@ -3,7 +3,7 @@ const { parse } = require('url')
 const next = require('next')
 const https = require('https');
 const http = require('http');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+// const { createProxyMiddleware } = require('http-proxy-middleware');
 // const httpProxy = require('http-proxy');
 const { readFileSync } = require('fs');
 const axios = require('axios');
@@ -11,6 +11,7 @@ const querystring = require('querystring');
 const formidable = require('formidable');
 const { createServer } =https;
 const dev = process.env.NODE_ENV !== 'production'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const port = process.env.PORT || 80;
 const app = next({ dev })
 const handle = app.getRequestHandler()
@@ -45,14 +46,15 @@ app.prepare().then(() => {
             const queryString = new URLSearchParams(parsedUrl.query).toString();
             const externalApiOptions = {
                 hostname: 'localhost',
-                port: 56887,
+                port: 7149,
                 path: parsedUrl.pathname,
                 method: 'GET',  
-                search:queryString
+                search:queryString,
+                headers:{...req.headers,host:'localhost'}
             };
       
 
-          const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
+          const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
             let data = '';
       
             externalApiRes.on('data', (chunk) => {
@@ -94,6 +96,9 @@ app.prepare().then(() => {
     }else if(parsedUrl.pathname.toLowerCase().includes('/sso/assertionconsumerservice')){
           // Parse the form data
           const form = new formidable.IncomingForm();
+      console.log(req,"req")
+
+      const cookies = parseCookies(req);
 
           // Parse the form data
           form.parse(req, (err, fields, files) => {
@@ -110,19 +115,18 @@ app.prepare().then(() => {
             console.log('Form Fields:', fields);
             console.log('Uploaded Files:', files);
 
-            const postData = querystring.stringify(fields);
+            const postData =  querystring.stringify(fields);
             const externalApiOptions = {
                 hostname: 'localhost',
-                port: 56887,
+                port: 7149,
                 path: parsedUrl.pathname,        
                 method:'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Content-Length': Buffer.byteLength(postData),
+                headers:  {
+                  ...req.headers,host:'localhost',
                   },
-            };
+                            };
 
-            const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
+            const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
             let data = []      
             externalApiRes.on('data', (chunk) => {
               data.push(chunk)
@@ -136,13 +140,15 @@ app.prepare().then(() => {
                 res.end(responseData)
             });
 
-            externalApiReq.on('error', (error) => {
-                console.error('Error making external API request:', error);
-                // Respond to the client with an error status and message
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Internal Server Error' }));
-            });
+
         });
+
+            externalApiReq.on('error', (error) => {
+              console.error('Error making external API request:', error);
+              // Respond to the client with an error status and message
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Internal Server Error' }));
+            });
             // Write the form data to the forwarded request
             externalApiReq.write(postData);
             externalApiReq.end();
@@ -192,4 +198,21 @@ function forwardRequest(req, res, targetUrl) {
     });
   }
 
+
+  function parseCookies(req) {
+    const cookieHeader = req.headers.cookie;
+  
+    if (cookieHeader) {
+      const cookies = {};
+      cookieHeader.split(';').forEach(cookie => {
+        const parts = cookie.split('=');
+        const name = parts[0].trim();
+        const value = parts[1].trim();
+        cookies[name] = value;
+      });
+      return cookies;
+    }
+  
+    return {};
+  }
 
