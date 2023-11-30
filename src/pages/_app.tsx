@@ -5,6 +5,7 @@ import Layout from "@/components/Layout/Layout";
 import { getGlobalPageProps } from "@/lib/serverSideProps";
 import { setPartner } from "@/state/slices/partnerSlice";
 import App, { AppContext, AppProps } from "next/app";
+import '@progress/kendo-theme-default/dist/all.css';
 
 type TProps = AppProps & {
   props: {};
