@@ -2,9 +2,17 @@ import SearchBox from "../SearchBox";
 import { useRouter } from "next/router";
 import "../../styles/Home.module.css";
 
-/* eslint-disable react/no-unescaped-entities */
 export const Home = () => {
   const router = useRouter();
+
+  const navigateToSearchResults = (
+    LocationState?: string,
+    locationName?: string
+  ) => {
+    router.push(
+      `/homes/${LocationState?.toLowerCase()}/${locationName?.toLowerCase()}`
+    );
+  };
 
   const handleClick = () => {
     // Handle button click logic here
@@ -12,18 +20,17 @@ export const Home = () => {
     // Redirect to a new page
     router.push("/armls/sso/startsso");
   };
+
   return (
     <div
       className="main-div"
-      id="homesearch"
+      id="home-search"
       style={{ backgroundImage: "url(/homepage_search.jpg)" }}
     >
       <button onClick={handleClick}>ARMLS Login</button>
-      <SearchBox />
-      <div>Banner</div>
-      <div>Learn how to Sell and Show New Homes</div>
-      <div>TrustBuilder®: Honest Reviews from Real Homebuyers</div>
-      <div>We feature 1000+ of America's premier new homebuilders</div>
+      <SearchBox navigateToSearchResults={navigateToSearchResults} />{" "}
+      {/* Pass the function as a prop */}
+      {/* Rest of your component */}
     </div>
   );
 };
