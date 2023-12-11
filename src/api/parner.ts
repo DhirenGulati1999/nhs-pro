@@ -1,4 +1,4 @@
-import { Partner } from "@/interfaces/Partner";
+import { Partner } from "@/interfaces/partner";
 import https from "https";
 import axios from "src/lib/axios";
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });

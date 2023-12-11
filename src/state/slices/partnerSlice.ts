@@ -1,5 +1,5 @@
+import { Partner } from "@/interfaces/partner";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Partner } from "@/interfaces/Partner";
 import { HYDRATE } from "next-redux-wrapper";
 
 interface InitialState {
