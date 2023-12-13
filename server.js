@@ -33,6 +33,8 @@ const httpsOptions = {
 //     // other options...
 //     agent: new CustomAgent({ protocol: 'https:' }),
 //   };
+
+const hostname ="sprint.procoreapi.com"
   
 
 app.prepare().then(() => {
@@ -45,13 +47,15 @@ app.prepare().then(() => {
     if (parsedUrl.pathname.toLowerCase().includes('/sso/startsso')) {  
             const queryString = new URLSearchParams(parsedUrl.query).toString();
             const externalApiOptions = {
-                hostname: 'localhost',
+                hostname:hostname,
                 port: 7149,
                 path: parsedUrl.pathname,
                 method: 'GET',  
                 search:queryString,
-                headers:{...req.headers,host:'localhost'}
+                headers:{...req.headers,host:hostname}
             };
+
+            
       
 
           const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
@@ -117,12 +121,12 @@ app.prepare().then(() => {
 
             const postData =  querystring.stringify(fields);
             const externalApiOptions = {
-                hostname: 'localhost',
+                hostname:hostname,
                 port: 7149,
                 path: parsedUrl.pathname,        
                 method:'POST',
                 headers:  {
-                  ...req.headers,host:'localhost',
+                  ...req.headers,host:hostname,
                   },
                             };
 

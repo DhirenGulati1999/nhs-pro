@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://localhost:7149",
+  baseURL: "http://sprint.procoreapi.com/",
 });
 
 export default instance;
