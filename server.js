@@ -9,7 +9,7 @@ const { readFileSync } = require('fs');
 const axios = require('axios');
 const querystring = require('querystring');
 const formidable = require('formidable');
-const { createServer } =https;
+const { createServer } =http;
 const dev = process.env.NODE_ENV !== 'production'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const port = process.env.PORT || 80;
@@ -20,45 +20,27 @@ const httpsOptions = {
   cert: readFileSync('./server.crt'),
 };
 
-// class CustomAgent extends https.Agent {
-//     // Override the createConnection method to intercept requests
-//     createConnection(options, callback) {
-//       console.log('Intercepted request:', options);
-//       // You can modify options or perform other actions here before creating the connection
-//       return super.createConnection(options, callback);
-//     }
-//   }
-
-//   const externalApiOptions = {
-//     // other options...
-//     agent: new CustomAgent({ protocol: 'https:' }),
-//   };
-
 const hostname ="sprint.procoreapi.com"
-  
 
 app.prepare().then(() => {
-  createServer(httpsOptions,async (req, res) => {
-    const parsedUrl = parse(req.url, true);
-    // console.log(parsedUrl.pathname)
-    // if(parsedUrl)
+  createServer((req, res) => {
+    // Be sure to pass `true` as the second argument to `url.parse`.
+    // This tells it to parse the query portion of the URL.
+    const parsedUrl = parse(req.url, true)
+    const { pathname, query } = parsedUrl
 
-    
     if (parsedUrl.pathname.toLowerCase().includes('/sso/startsso')) {  
             const queryString = new URLSearchParams(parsedUrl.query).toString();
             const externalApiOptions = {
                 hostname:hostname,
-                port: 7149,
+                port: 80,
                 path: parsedUrl.pathname,
                 method: 'GET',  
                 search:queryString,
                 headers:{...req.headers,host:hostname}
             };
 
-            
-      
-
-          const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
+          const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
             let data = '';
       
             externalApiRes.on('data', (chunk) => {
@@ -82,22 +64,9 @@ app.prepare().then(() => {
           });
 
           externalApiReq.end();
-        // fetch("https://sprint.newhomesourceprofessional.com/").then((data)=>console.log(data)).catch((e)=>console.log(e))
-        // console.log(req,"req first")
-        // forwardRequest(req, res, 'https://sprint.newhomesourceprofessional.com/abor/sso/startsso');
-
-        //   proxy.web(req, res, { target: 'https://sprint.newhomesourceprofessional.com/abor/sso/startsso' });
       
-        //   // Handle any errors during the external API request
-        //   externalApiReq.on('error', (error) => {
-        //     console.error('Error making external API request:', error);
-      
-        //     // Respond with an error to the client
-        //     res.writeHead(500, { 'Content-Type': 'application/json' });
-        //     res.end(JSON.stringify({ error: 'Internal Server Error' }));
-        //   });
-      
-    }else if(parsedUrl.pathname.toLowerCase().includes('/sso/assertionconsumerservice')){
+    }
+    else if(parsedUrl.pathname.toLowerCase().includes('/sso/assertionconsumerservice')){
           // Parse the form data
           const form = new formidable.IncomingForm();
       console.log(req,"req")
@@ -122,7 +91,7 @@ app.prepare().then(() => {
             const postData =  querystring.stringify(fields);
             const externalApiOptions = {
                 hostname:hostname,
-                port: 7149,
+                port: 80,
                 path: parsedUrl.pathname,        
                 method:'POST',
                 headers:  {
@@ -130,19 +99,12 @@ app.prepare().then(() => {
                   },
                             };
 
-            const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
+            const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
             let data = []      
             externalApiRes.on('data', (chunk) => {
               data.push(chunk)
             });
-            externalApiRes.on('end', () => {
-                // Concatenate the chunks to form the complete response data
-                const responseData = Buffer.concat(data).toString('utf8');
-                 // Process the response from the external API
-                console.log('Response from external API:', responseData);
-                res.writeHead(externalApiRes.statusCode, externalApiRes.headers) 
-                res.end(responseData)
-            });
+
 
 
         });
@@ -159,64 +121,11 @@ app.prepare().then(() => {
           
         });
     }
-    else{
-            handle(req, res, parsedUrl);
+    else {
+      handle(req, res, parsedUrl)
     }
-
-    // }
-  }).listen(443, (err) => {
-    if (err) throw err;
-    console.log('> Ready on https://localhost:443');
-  });
+  }).listen(port, (err) => {
+    if (err) throw err
+    console.log(`> Ready on http://localhost:${port}`)
+  })
 })
-
-
-function forwardRequest(req, res, targetUrl) {
-    const targetOptions = parse(targetUrl);
-    targetOptions.method = req.method;
-    targetOptions.headers = req.headers;
-    targetOptions.rejectUnauthorized = false; // Disable SSL/TLS certificate verification
-    targetOptions.agent = new CustomAgent({ protocol: 'https:' });
-
-    const targetReq = https.request(targetOptions, (targetRes) => {
-        console.log("here inside arget req")
-        if (targetRes.statusCode >= 200 && targetRes.statusCode < 300) {
-            console.log('Request to external API successful',targetRes);
-          }
-      res.writeHead(targetRes.statusCode, targetRes.headers);
-  
-      targetRes.pipe(res, {
-        end: true
-      });
-    });
-  
-    req.pipe(targetReq, {
-      end: true
-    });
-    console.log("here")
-    targetReq.on('error', (error) => {
-      console.error('Error making external API request:', error);
-  
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Internal Server Error' }));
-    });
-  }
-
-
-  function parseCookies(req) {
-    const cookieHeader = req.headers.cookie;
-  
-    if (cookieHeader) {
-      const cookies = {};
-      cookieHeader.split(';').forEach(cookie => {
-        const parts = cookie.split('=');
-        const name = parts[0].trim();
-        const value = parts[1].trim();
-        cookies[name] = value;
-      });
-      return cookies;
-    }
-  
-    return {};
-  }
-
