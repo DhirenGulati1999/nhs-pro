@@ -3,16 +3,17 @@ const { parse } = require('url')
 const next = require('next')
 const https = require('https');
 const http = require('http');
+const router = require('next/router')
 // const { createProxyMiddleware } = require('http-proxy-middleware');
 // const httpProxy = require('http-proxy');
 const { readFileSync } = require('fs');
 const axios = require('axios');
 const querystring = require('querystring');
 const formidable = require('formidable');
-const { createServer } =http;
+const { createServer } =https;
 const dev = process.env.NODE_ENV !== 'production'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 443;
 const app = next({ dev })
 const handle = app.getRequestHandler()
 const httpsOptions = {
@@ -20,10 +21,10 @@ const httpsOptions = {
   cert: readFileSync('./server.crt'),
 };
 
-const hostname ="sprint.procoreapi.com"
+const hostname ="localhost"
 
 app.prepare().then(() => {
-  createServer((req, res) => {
+  createServer(httpsOptions,(req, res) => {
     // Be sure to pass `true` as the second argument to `url.parse`.
     // This tells it to parse the query portion of the URL.
     const parsedUrl = parse(req.url, true)
@@ -33,14 +34,14 @@ app.prepare().then(() => {
             const queryString = new URLSearchParams(parsedUrl.query).toString();
             const externalApiOptions = {
                 hostname:hostname,
-                port: 80,
+                port: 7149,
                 path: parsedUrl.pathname,
                 method: 'GET',  
                 search:queryString,
                 headers:{...req.headers,host:hostname}
             };
 
-          const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
+          const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
             let data = '';
       
             externalApiRes.on('data', (chunk) => {
@@ -49,7 +50,7 @@ app.prepare().then(() => {
       
             externalApiRes.on('end', () => {
               // Process the response from the external API
-              console.log('Response from external API:', data);
+              // console.log('Response from external API:', data);
               res.writeHead(externalApiRes.statusCode, externalApiRes.headers)
               res.end(data)
             });
@@ -69,9 +70,7 @@ app.prepare().then(() => {
     else if(parsedUrl.pathname.toLowerCase().includes('/sso/assertionconsumerservice')){
           // Parse the form data
           const form = new formidable.IncomingForm();
-      console.log(req,"req")
-
-      const cookies = parseCookies(req);
+      // console.log(req,"req")
 
           // Parse the form data
           form.parse(req, (err, fields, files) => {
@@ -85,13 +84,13 @@ app.prepare().then(() => {
             }
     
             // Log or process the form fields and files
-            console.log('Form Fields:', fields);
-            console.log('Uploaded Files:', files);
+            // console.log('Form Fields:', fields);
+            // console.log('Uploaded Files:', files);
 
             const postData =  querystring.stringify(fields);
             const externalApiOptions = {
                 hostname:hostname,
-                port: 80,
+                port: 7149,
                 path: parsedUrl.pathname,        
                 method:'POST',
                 headers:  {
@@ -99,14 +98,19 @@ app.prepare().then(() => {
                   },
                             };
 
-            const externalApiReq = http.request(externalApiOptions, (externalApiRes) => {
+            const externalApiReq = https.request(externalApiOptions, (externalApiRes) => {
             let data = []      
             externalApiRes.on('data', (chunk) => {
               data.push(chunk)
             });
-
-
-
+                        externalApiRes.on('end', () => {
+                // Concatenate the chunks to form the complete response data
+                const responseData = Buffer.concat(data).toString('utf8');
+                 // Process the response from the external API
+                console.log('Response from external API:', responseData);
+                                res.writeHead(302, {location:"/"}) 
+                res.end(responseData)
+            });
         });
 
             externalApiReq.on('error', (error) => {
@@ -126,6 +130,6 @@ app.prepare().then(() => {
     }
   }).listen(port, (err) => {
     if (err) throw err
-    console.log(`> Ready on http://localhost:${port}`)
+    console.log(`> Ready on https://localhost:${port}`)
   })
 })
