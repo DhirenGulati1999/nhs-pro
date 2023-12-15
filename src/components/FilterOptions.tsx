@@ -12,7 +12,7 @@ const FilterOptions: React.FC = () => {
   };
 
   return (
-    <div style={{ marginTop: "10px", marginLeft: "80px", maxWidth: "800px" }}>
+    <div style={{ marginTop: "10px", marginLeft: "-15px", display:"flex", justifyContent:"space-between" }}>
       <FormControl
         sx={{ m: 2, backgroundColor: "#fff", minWidth: 120 }}
         size="small"

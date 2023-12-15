@@ -25,7 +25,7 @@ export const Home = () => {
     <div
       className="main-div"
       id="home-search"
-      style={{ backgroundImage: "url(/homepage_search.jpg)" }}
+      style={{ backgroundImage: "url(/homepage_search.jpg)", backgroundRepeat:"no-repeat", backgroundSize:"cover", padding:"30px 0" }}
     >
       <button onClick={handleClick}>ARMLS Login</button>
       <SearchBox navigateToSearchResults={navigateToSearchResults} />{" "}

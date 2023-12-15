@@ -304,3 +304,7 @@ span.play:after {
 }
 
 /*end startfresh slider */
+.header{
+  display: flex;
+  justify-content: space-between;
+}

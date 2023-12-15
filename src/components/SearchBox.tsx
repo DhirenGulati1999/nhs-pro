@@ -37,15 +37,16 @@ const SearchBox: React.FC<{
   }, [inputValue]);
 
   return (
-    <div className="clearfix homepage-searchbox">
-      <h1 style={{ color: "#fff" }}>
+    <div className="clearfix homepage-searchbox" style={{background:"rgba(255, 255, 255 ,0.9)", maxWidth:"568px",  margin:" 10px auto", padding:"32px", borderRadius:"8px"}}>
+      <h1 style={{
+        color:"#454545"
+      }}>
         Your MLS Companion for New Construction Homes
       </h1>
       <form>
         <Autocomplete
           style={{
             maxWidth: "700px",
-            marginLeft: "5%",
             backgroundColor: "#fff",
           }}
           fullWidth={false}
@@ -77,7 +78,14 @@ const SearchBox: React.FC<{
           className="btn HomeSearchBtn"
           id="HomeSearchBtn"
           value="Find Homes"
+          style={{
+            padding:"10px 15px",
+            background:"#f58220",
+          border:"transparent",
+          width:"100%"
+          }}
         />
+        
       </form>
     </div>
   );

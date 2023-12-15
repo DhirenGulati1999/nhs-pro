@@ -7,12 +7,16 @@ import { RootState } from "@/state/store";
 function Navigation() {
   const liStyle = {
     display: "-webkit-flex",
-    marginLeft: "16px"
+   
   };
 
   const ulStyle = {
     display: "inline-flex",
     listStyle: "none",
+    gap:"10px",
+    paddingLeft:"0",
+    justifyContent:"flex-end",
+    width:"100%"
   };
 
   const { IsUserLogedIn, User } = useAppSelector(
@@ -20,7 +24,7 @@ function Navigation() {
   );
 
   return (
-    <div>
+    <div  className='header'>
       <ul style={ulStyle}>
         <li style={liStyle}>
           <ProLink url="/webinars" urlText="Resources" />

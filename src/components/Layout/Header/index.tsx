@@ -4,10 +4,10 @@ import Navigation from './Navigation'
 
 function Header() {
   return (
-    <>
+    <div>
     <AppLogo></AppLogo>
     <Navigation></Navigation>
-    </>
+    </div>
   )
 }
 
