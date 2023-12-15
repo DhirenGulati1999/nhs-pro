@@ -1,0 +1,9 @@
+> Ready on http://localhost:\\.\pipe\947d3d53-eab4-461c-94af-ec1ad36c1d77
+Partner--------- {
+  PartnerId: 88,
+  PrivateLabelSite: '',
+  StatusId: 0,
+  PartnerTypeCode: null,
+  PartnerName: 'NHS Pro',
+  PartnerLogo: null
+}
